@@ -69,6 +69,7 @@ public class Capture extends CordovaPlugin {
     private static final int CAPTURE_AUDIO = 0;     // Constant for capture audio
     private static final int CAPTURE_IMAGE = 1;     // Constant for capture image
     private static final int CAPTURE_VIDEO = 2;     // Constant for capture video
+    private static final int START_REVIEW = 3;     // Constant for start review
     private static final String LOG_TAG = "Capture";
 
     private static final int CAPTURE_INTERNAL_ERR = 0;
@@ -138,6 +139,9 @@ public class Capture extends CordovaPlugin {
         }
         else if (action.equals("captureVideo")) {
             this.captureVideo(pendingRequests.createRequest(CAPTURE_VIDEO, options, callbackContext));
+        }        
+        else if (action.equals("startReview")) {
+            this.startReview(pendingRequests.createRequest(START_REVIEW, options, callbackContext));
         }
         else {
             return false;
@@ -294,6 +298,7 @@ public class Capture extends CordovaPlugin {
     }
 
     /**
+     * todo change this
      * Sets up an intent to capture video.  Result handled by onActivityResult()
      */
     private void captureVideo(Request req) {
@@ -308,6 +313,12 @@ public class Capture extends CordovaPlugin {
             }
             this.cordova.startActivityForResult((CordovaPlugin) this, intent, req.requestCode);
         }
+    }
+     /**
+     * todo add this
+     * Start review
+     */
+    private void startReview(Request req) {
     }
 
     /**
