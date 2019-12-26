@@ -47,7 +47,11 @@ xmlns:android="http://schemas.android.com/apk/res/android"
     <js-module src="www/CaptureVideoOptions.js" name="CaptureVideoOptions">
         <clobbers target="CaptureVideoOptions" />
     </js-module>
-
+  
+    <js-module src="www/StartReviewOptions.js" name="StartReviewOptions">
+        <clobbers target="StartReviewOptions" />
+    </js-module>
+  
     <js-module src="www/CaptureError.js" name="CaptureError">
         <clobbers target="CaptureError" />
     </js-module>
