@@ -52,6 +52,12 @@ interface Capture {
             onSuccess: (mediaFiles: MediaFile[]) => void,
             onError: (error: CaptureError) => void,
             options?: VideoOptions): void ;
+    
+    startReview(
+            onSuccess: (response: any) => void,
+            onError: (error: any) => void,
+            options?: StartReviewOptions): void ;
+    
     /** The audio recording formats supported by the device. */
     supportedAudioModes: ConfigurationData[];
     /** The recording image sizes and formats supported by the device. */
@@ -147,6 +153,7 @@ interface ImageOptions {
 }
 
 /** Encapsulates video capture configuration options. */
+// todo this options
 interface VideoOptions {
     /**
      * The maximum number of video clips the device's user can capture in a single
@@ -155,6 +162,9 @@ interface VideoOptions {
     limit?: number;
     /** The maximum duration of a video clip, in seconds. */
     duration?: number;
+}
+// todo this options
+interface StartReviewOptions{
 }
 
 /** Encapsulates a set of media capture parameters that a device supports. */
