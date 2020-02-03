@@ -79,8 +79,21 @@ Capture.prototype.captureVideo = function (successCallback, errorCallback, optio
     _capture('captureVideo', successCallback, errorCallback, options);
 };
 
-Capture.prototype.startReview = function (successCallback, errorCallback, options) {
-    _capture('startReview', successCallback, errorCallback, options);
+Capture.prototype.startRecording = function (successCallback, errorCallback, options) {
+    exec(successCallback, errorCallback, 'Capture', "startRecording", [options]);
 };
+
+Capture.prototype.stopRecording = function (successCallback, errorCallback, options) {
+    exec(successCallback, errorCallback, 'Capture', "stopRecording", [options]);
+};
+
+Capture.prototype.showPreview = function (successCallback, errorCallback, options) {
+    exec(successCallback, errorCallback, 'Capture', "showPreview", [options]);
+};
+
+Capture.prototype.hidePreview = function (successCallback, errorCallback, options) {
+    exec(successCallback, errorCallback, 'Capture', "hidePreview", [options]);
+};
+
 
 module.exports = new Capture();

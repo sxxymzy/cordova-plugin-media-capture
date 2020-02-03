@@ -157,11 +157,14 @@ public class PendingRequests {
     public class Request {
 
         // Keys for use in saving requests to a bundle
-        private static final String ACTION_KEY = "action";
-        private static final String LIMIT_KEY = "limit";
-        private static final String DURATION_KEY = "duration";
-        private static final String QUALITY_KEY = "quality";
-        private static final String RESULTS_KEY = "results";
+        public static final String ACTION_KEY = "action";
+        public static final String LIMIT_KEY = "limit";
+        public static final String DURATION_KEY = "duration";
+        public static final String QUALITY_KEY = "quality";
+        public static final String RESULTS_KEY = "results";
+        public static final String BPS_KEY = "bps";
+        public static final String FPS_KEY = "fps";
+        public static final String APP_NAME_KEY = "app_name";
 
         // Unique int used to identify this request in any Android Permission or Activity callbacks
         public int requestCode;
@@ -177,6 +180,11 @@ public class PendingRequests {
 
         // Quality level for video capture 0 low, 1 high (CAPTURE_VIDEO only)
         public int quality = 1;
+
+        public int bps = 400000;
+        public int fps = 25;
+
+        public String appName = "";
 
         // The array of results to be returned to the javascript callback on success
         public JSONArray results = new JSONArray();
@@ -204,6 +212,9 @@ public class PendingRequests {
             this.limit = bundle.getLong(LIMIT_KEY);
             this.duration = bundle.getInt(DURATION_KEY);
             this.quality = bundle.getInt(QUALITY_KEY);
+            this.bps = bundle.getInt(BPS_KEY);
+            this.fps = bundle.getInt(FPS_KEY);
+            this.appName = bundle.getString(APP_NAME_KEY);
 
             try {
                 this.results = new JSONArray(bundle.getString(RESULTS_KEY));
@@ -213,7 +224,7 @@ public class PendingRequests {
             }
         }
 
-        private Bundle toBundle() {
+        public Bundle toBundle() {
             Bundle bundle = new Bundle();
 
             bundle.putInt(ACTION_KEY, this.action);
@@ -221,6 +232,9 @@ public class PendingRequests {
             bundle.putInt(DURATION_KEY, this.duration);
             bundle.putInt(QUALITY_KEY, this.quality);
             bundle.putString(RESULTS_KEY, this.results.toString());
+            bundle.putInt(BPS_KEY, this.bps);
+            bundle.putInt(FPS_KEY, this.fps);
+            bundle.putString(APP_NAME_KEY, this.appName);
 
             return bundle;
         }
