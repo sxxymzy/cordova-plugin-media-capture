@@ -87,7 +87,7 @@ public class CamService extends Service {
     private int bitRate = 5000000;
     private int frameRate = 25;
     private int duration = 1000 * 60 * 30;
-    private Class callerClass;
+    private PendingIntent callerContentIntent;
     private String appName;
     private final StateCallback stateCallback = new StateCallback() {
         public void onOpened(@NonNull CameraDevice currentCameraDevice) {
@@ -142,7 +142,7 @@ public class CamService extends Service {
 
     public int onStartCommand(Intent intent, int flags, int startId) {
         Bundle options = intent.getBundleExtra("options");
-        callerClass = intent.getParcelableExtra("_callerClass").getClass();
+        callerContentIntent = intent.getParcelableExtra("_contentIntent");
         if (options != null) {
             appName = options.getString(PendingRequests.Request.APP_NAME_KEY);
             bitRate = options.getInt(PendingRequests.Request.BPS_KEY);
@@ -151,6 +151,7 @@ public class CamService extends Service {
         }
 
         if (isFirstTime) {
+            startForeground();
             if (Objects.equals(intent.getAction(), ACTION_START)) {
                 start();
             } else if (Objects.equals(intent.getAction(), ACTION_START_WITH_PREVIEW)) {
@@ -171,8 +172,7 @@ public class CamService extends Service {
     public void onCreate() {
         super.onCreate();
         oneDp = getResources().getDisplayMetrics().density;
-        startForeground();
-        scheduleJobs();
+//        scheduleJobs();
     }
 
     public void onDestroy() {
@@ -316,7 +316,7 @@ public class CamService extends Service {
     }
 
     private void startForeground() {
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, callerClass), 0);
+//        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, callerContentIntent), 0);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_NONE);
             channel.setLightColor(Color.BLUE);
@@ -330,7 +330,7 @@ public class CamService extends Service {
                         .setContentTitle(appName + "title")
                         .setContentText(appName + "text")
 //                        .setSmallIcon(callerR.drawable.notification_template_icon_bg)
-                        .setContentIntent(pendingIntent)
+                        .setContentIntent(callerContentIntent)
                         .setTicker(appName + "ticker")
                         .build();
         startForeground(ONGOING_NOTIFICATION_ID, notification);

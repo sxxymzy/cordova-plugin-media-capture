@@ -1,5 +1,7 @@
 ﻿#If ignorance is bliss, then somebody knock the smile off my face
 
+.vscode
+.idea
 *.csproj.user
 *.suo
 *.cache

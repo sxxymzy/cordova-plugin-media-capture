@@ -59,8 +59,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
-
-import com.yxdian.mobile.cam.R;
+import android.provider.Settings;
 
 
 public class Capture extends CordovaPlugin {
@@ -78,6 +77,7 @@ public class Capture extends CordovaPlugin {
     private static final int STOP_RECORDING = 4;
     private static final int SHOW_PREVIEW = 5;
     private static final int HIDE_PREVIEW = 6;
+    private static final int REQUEST_OVERLAY_CODE = 7;
     private static final String LOG_TAG = "Capture";
 
     private static final int CAPTURE_INTERNAL_ERR = 0;
@@ -333,7 +333,8 @@ public class Capture extends CordovaPlugin {
         Context context = this.cordova.getContext();
         Intent intent = new Intent(context, CamService.class);
         intent.setAction(action);
-        intent.putExtra("_callerClass", this.cordova.getActivity().getClass());
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, new Intent(this.cordova.getActivity(), this.cordova.getActivity().getClass()), 0);
+        intent.putExtra("_contentIntent", pendingIntent);
         if (options != null) {
             intent.putExtra("options", options);
         }
@@ -346,7 +347,14 @@ public class Capture extends CordovaPlugin {
 
     private void startRecording(Request req) {
 //        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, cordova.getActivity().getClass()), 0);
-        notifyService(CamService.ACTION_START_WITH_PREVIEW, req.toBundle());
+        Activity act = this.cordova.getActivity();
+        Context context = this.cordova.getContext();
+        if (Build.VERSION.SDK_INT >= 23 && !Settings.canDrawOverlays(context)) {
+            Intent settingsIntent = new Intent("android.settings.action.MANAGE_OVERLAY_PERMISSION");
+            act.startActivityForResult(settingsIntent, REQUEST_OVERLAY_CODE);
+        } else {
+            notifyService(CamService.ACTION_START_WITH_PREVIEW, req.toBundle());
+        }
     }
 
     private void stopRecording(Request req) {
