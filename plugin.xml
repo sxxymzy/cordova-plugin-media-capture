@@ -21,7 +21,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
 xmlns:android="http://schemas.android.com/apk/res/android"
            id="cordova-plugin-media-capture"
-      version="3.0.4-dev">
+      version="4.0.0">
     <name>Capture</name>
 
     <description>Cordova Media Capture Plugin</description>
@@ -46,10 +46,6 @@ xmlns:android="http://schemas.android.com/apk/res/android"
 
     <js-module src="www/CaptureVideoOptions.js" name="CaptureVideoOptions">
         <clobbers target="CaptureVideoOptions" />
-    </js-module>
-  
-    <js-module src="www/StartReviewOptions.js" name="StartReviewOptions">
-        <clobbers target="StartReviewOptions" />
     </js-module>
   
     <js-module src="www/CaptureError.js" name="CaptureError">
@@ -85,6 +81,8 @@ xmlns:android="http://schemas.android.com/apk/res/android"
             <uses-permission android:name="android.permission.RECORD_VIDEO"/>
             <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
             <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+            <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+            <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
         </config-file>
 
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
@@ -94,6 +92,7 @@ xmlns:android="http://schemas.android.com/apk/res/android"
         <source-file src="src/android/Capture.java" target-dir="src/org/apache/cordova/mediacapture" />
         <source-file src="src/android/FileHelper.java" target-dir="src/org/apache/cordova/mediacapture" />
         <source-file src="src/android/PendingRequests.java" target-dir="src/org/apache/cordova/mediacapture" />
+        <source-file src="src/android/CamService.java" target-dir="src/org/apache/cordova/mediacapture" />
 
         <js-module src="www/android/init.js" name="init">
             <runs />
