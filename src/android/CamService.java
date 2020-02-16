@@ -207,7 +207,7 @@ public class CamService extends Service {
     @SuppressLint("ClickableViewAccessibility")
     private void initOverlay() {
         this.textureView = new TextureView(this);
-        int type = Build.VERSION.SDK_INT < Build.VERSION_CODES.O ? WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY : WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+        int type = Build.VERSION.SDK_INT < Build.VERSION_CODES.O ? WindowManager.LayoutParams.TYPE_PHONE : WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
 
         final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 (int) (90 * oneDp),
@@ -454,7 +454,7 @@ public class CamService extends Service {
         }
 
         if (mediaRecorder != null) {
-            mediaRecorder.setOrientationHint(90);
+            mediaRecorder.setOrientationHint(0);
             mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
             mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
             mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
@@ -483,25 +483,18 @@ public class CamService extends Service {
     }
 
     private String getVideoFilePath(Context context) {
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat timeFormatter = new SimpleDateFormat("HH_mm_ss");
+        Date now = new Date(System.currentTimeMillis());
 
-//        String pattern = "MM/dd/yyyy HH:mm:ss";
-//
-//        DateFormat df = new SimpleDateFormat(pattern);
-//        Date today = Calendar.getInstance().getTime();
-//        String todayAsString = df.format(today);
-//
-        String filename = System.currentTimeMillis() + ".mp4";
-        File dir = context != null ? new File(Environment.getExternalStorageDirectory(), "/YXD/" + new Date().getTime()) : null;
-//        File dir = context != null ? context.getExternalFilesDir("Download") : null;
-//        File dir = context != null ? new File(Environment.getExternalStorageDirectory(), "/YXD/" + todayAsString) : null;
+
+        String filename = timeFormatter.format(now) + ".mp4";
+        File dir = context != null ? new File(Environment.getExternalStorageDirectory(), "/YXD/" + dateFormatter.format(now)) : null;
+
         if (!dir.exists()) {
             dir.mkdirs();
         }
         return dir == null ? filename : dir.getAbsolutePath() + '/' + filename;
-    }
-
-    private LocalDateTime stringToLocalDateTime(String s) {
-        return LocalDate.now().atTime(Integer.parseInt(s.split(":")[0]), Integer.parseInt(s.split(":")[1]));
     }
 
     private void hideTexture() {
