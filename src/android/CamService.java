@@ -37,10 +37,13 @@ import androidx.core.app.NotificationCompat;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Timer;
@@ -413,18 +416,18 @@ public class CamService extends Service {
     }
 
     private void scheduleJobs() {
-        final LocalDateTime endAt = this.stringToLocalDateTime("18:20");
-
-        new Timer().schedule(new TimerTask() {
-            public void run() {
-                // 防止过时的时间触发
-                if (endAt.compareTo(LocalDateTime.now().plusSeconds(-1)) > 0) {
-                    stopSelf();
-                    // showToast("alarm!");
-                    Log.d("test", "timer is ringing");
-                }
-            }
-        }, Date.from(endAt.atZone(ZoneId.systemDefault()).toInstant()));
+//        final LocalDateTime endAt = this.stringToLocalDateTime("18:20");
+//
+//        new Timer().schedule(new TimerTask() {
+//            public void run() {
+//                // 防止过时的时间触发
+//                if (endAt.compareTo(LocalDateTime.now().plusSeconds(-1)) > 0) {
+//                    stopSelf();
+//                    // showToast("alarm!");
+//                    Log.d("test", "timer is ringing");
+//                }
+//            }
+//        }, Date.from(endAt.atZone(ZoneId.systemDefault()).toInstant()));
     }
 
     private void stopCamera() {
@@ -480,9 +483,17 @@ public class CamService extends Service {
     }
 
     private String getVideoFilePath(Context context) {
+
+//        String pattern = "MM/dd/yyyy HH:mm:ss";
+//
+//        DateFormat df = new SimpleDateFormat(pattern);
+//        Date today = Calendar.getInstance().getTime();
+//        String todayAsString = df.format(today);
+//
         String filename = System.currentTimeMillis() + ".mp4";
+        File dir = context != null ? new File(Environment.getExternalStorageDirectory(), "/YXD/" + new Date().getTime()) : null;
 //        File dir = context != null ? context.getExternalFilesDir("Download") : null;
-        File dir = context != null ? new File(Environment.getExternalStorageDirectory(), "/YXD/" + LocalDate.now().toString()) : null;
+//        File dir = context != null ? new File(Environment.getExternalStorageDirectory(), "/YXD/" + todayAsString) : null;
         if (!dir.exists()) {
             dir.mkdirs();
         }

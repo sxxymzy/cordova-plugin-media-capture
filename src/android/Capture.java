@@ -349,6 +349,23 @@ public class Capture extends CordovaPlugin {
 //        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, cordova.getActivity().getClass()), 0);
         Activity act = this.cordova.getActivity();
         Context context = this.cordova.getContext();
+        boolean needExternalStoragePermission =
+                !PermissionHelper.hasPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+
+        boolean needMicrophonePermission =
+                !PermissionHelper.hasPermission(this, Manifest.permission.RECORD_AUDIO);
+
+        boolean needCameraPermission = cameraPermissionInManifest &&
+                !PermissionHelper.hasPermission(this, Manifest.permission.CAMERA);
+        if (needExternalStoragePermission || needCameraPermission || needMicrophonePermission){
+            PermissionHelper.requestPermissions(this, req.requestCode, new String[]{
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.RECORD_AUDIO
+            });
+        }
+
         if (Build.VERSION.SDK_INT >= 23 && !Settings.canDrawOverlays(context)) {
             Intent settingsIntent = new Intent("android.settings.action.MANAGE_OVERLAY_PERMISSION");
             act.startActivityForResult(settingsIntent, REQUEST_OVERLAY_CODE);
