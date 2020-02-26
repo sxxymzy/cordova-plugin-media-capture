@@ -69,10 +69,12 @@ public class CamService extends Service {
     private final int TARGET_HEIGHT = 1280;
     private final int TARGET_WIDTH = 720;
     private final CameraCaptureSession.CaptureCallback captureCallback = new CameraCaptureSession.CaptureCallback() {
-        public void onCaptureProgressed(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull CaptureResult partialResult) {
+        public void onCaptureProgressed(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request,
+                @NonNull CaptureResult partialResult) {
         }
 
-        public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
+        public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request,
+                @NonNull TotalCaptureResult result) {
         }
     };
     private WindowManager wm;
@@ -86,12 +88,12 @@ public class CamService extends Service {
     private MediaRecorder mediaRecorder;
     private String nextVideoAbsolutePath;
     private boolean isFirstTime = true;
-    private String saveFolder = "";
     private int bitRate = 5000000;
     private int frameRate = 25;
     private int duration = 1000 * 60 * 30;
     private PendingIntent callerContentIntent;
     private String appName;
+    private String taskName;
     private final StateCallback stateCallback = new StateCallback() {
         public void onOpened(@NonNull CameraDevice currentCameraDevice) {
             cameraDevice = currentCameraDevice;
@@ -109,18 +111,15 @@ public class CamService extends Service {
         }
     };
     private float oneDp = 1;
-    private TextureView.SurfaceTextureListener surfaceTextureListener
-            = new TextureView.SurfaceTextureListener() {
+    private TextureView.SurfaceTextureListener surfaceTextureListener = new TextureView.SurfaceTextureListener() {
 
         @Override
-        public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture,
-                                              int width, int height) {
+        public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
             initCam(TARGET_HEIGHT, TARGET_WIDTH);
         }
 
         @Override
-        public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture,
-                                                int width, int height) {
+        public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int width, int height) {
         }
 
         @Override
@@ -148,6 +147,7 @@ public class CamService extends Service {
         callerContentIntent = intent.getParcelableExtra("_contentIntent");
         if (options != null) {
             appName = options.getString(PendingRequests.Request.APP_NAME_KEY);
+            taskName = options.getString(PendingRequests.Request.TASK_NAME_KEY);
             bitRate = options.getInt(PendingRequests.Request.BPS_KEY);
             frameRate = options.getInt(PendingRequests.Request.FPS_KEY);
             duration = options.getInt(PendingRequests.Request.DURATION_KEY);
@@ -175,7 +175,7 @@ public class CamService extends Service {
     public void onCreate() {
         super.onCreate();
         oneDp = getResources().getDisplayMetrics().density;
-//        scheduleJobs();
+        // scheduleJobs();
     }
 
     public void onDestroy() {
@@ -207,14 +207,11 @@ public class CamService extends Service {
     @SuppressLint("ClickableViewAccessibility")
     private void initOverlay() {
         this.textureView = new TextureView(this);
-        int type = Build.VERSION.SDK_INT < Build.VERSION_CODES.O ? WindowManager.LayoutParams.TYPE_PHONE : WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+        int type = Build.VERSION.SDK_INT < Build.VERSION_CODES.O ? WindowManager.LayoutParams.TYPE_PHONE
+                : WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
 
-        final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                (int) (90 * oneDp),
-                (int) (120 * oneDp),
-                0,
-                0,
-                type,
+        final WindowManager.LayoutParams params = new WindowManager.LayoutParams((int) (90 * oneDp),
+                (int) (120 * oneDp), 0, 0, type,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT);
         wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
@@ -308,34 +305,37 @@ public class CamService extends Service {
     }
 
     private Size chooseSupportedSize(String camId, int textureViewWidth, int textureViewHeight) {
-//        CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(camId);
-//        StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-//        Size[] supportedSizes = map != null ? map.getOutputSizes(SurfaceTexture.class) : null;
-//
-//        final int texViewArea = textureViewWidth * textureViewHeight;
-//        final float texViewAspect = (float)textureViewWidth / (float)textureViewHeight;
+        // CameraCharacteristics characteristics =
+        // cameraManager.getCameraCharacteristics(camId);
+        // StreamConfigurationMap map =
+        // characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+        // Size[] supportedSizes = map != null ?
+        // map.getOutputSizes(SurfaceTexture.class) : null;
+        //
+        // final int texViewArea = textureViewWidth * textureViewHeight;
+        // final float texViewAspect = (float)textureViewWidth /
+        // (float)textureViewHeight;
 
         return new Size(TARGET_HEIGHT, TARGET_WIDTH);
     }
 
     private void startForeground() {
-//        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, callerContentIntent), 0);
+        // PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new
+        // Intent(this, callerContentIntent), 0);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_NONE);
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME,
+                    NotificationManager.IMPORTANCE_NONE);
             channel.setLightColor(Color.BLUE);
             channel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
             NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             Objects.requireNonNull(nm).createNotificationChannel(channel);
         }
 
-        @SuppressLint("PrivateResource") Notification notification =
-                (new NotificationCompat.Builder(this, CHANNEL_ID))
-                        .setContentTitle(appName + "title")
-                        .setContentText(appName + "text")
-//                        .setSmallIcon(callerR.drawable.notification_template_icon_bg)
-                        .setContentIntent(callerContentIntent)
-                        .setTicker(appName + "ticker")
-                        .build();
+        @SuppressLint("PrivateResource")
+        Notification notification = (new NotificationCompat.Builder(this, CHANNEL_ID))
+                .setContentTitle(appName + "title").setContentText(appName + "text")
+                // .setSmallIcon(callerR.drawable.notification_template_icon_bg)
+                .setContentIntent(callerContentIntent).setTicker(appName + "ticker").build();
         startForeground(ONGOING_NOTIFICATION_ID, notification);
     }
 
@@ -355,7 +355,8 @@ public class CamService extends Service {
 
             targetSurfaces.add(recorderSurface);
 
-            final CaptureRequest.Builder requestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+            final CaptureRequest.Builder requestBuilder = cameraDevice
+                    .createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
             if (shouldShowPreview) {
                 SurfaceTexture texture = textureView.getSurfaceTexture();
                 texture.setDefaultBufferSize(previewSize.getWidth(), previewSize.getHeight());
@@ -416,18 +417,18 @@ public class CamService extends Service {
     }
 
     private void scheduleJobs() {
-//        final LocalDateTime endAt = this.stringToLocalDateTime("18:20");
-//
-//        new Timer().schedule(new TimerTask() {
-//            public void run() {
-//                // 防止过时的时间触发
-//                if (endAt.compareTo(LocalDateTime.now().plusSeconds(-1)) > 0) {
-//                    stopSelf();
-//                    // showToast("alarm!");
-//                    Log.d("test", "timer is ringing");
-//                }
-//            }
-//        }, Date.from(endAt.atZone(ZoneId.systemDefault()).toInstant()));
+        // final LocalDateTime endAt = this.stringToLocalDateTime("18:20");
+        //
+        // new Timer().schedule(new TimerTask() {
+        // public void run() {
+        // // 防止过时的时间触发
+        // if (endAt.compareTo(LocalDateTime.now().plusSeconds(-1)) > 0) {
+        // stopSelf();
+        // // showToast("alarm!");
+        // Log.d("test", "timer is ringing");
+        // }
+        // }
+        // }, Date.from(endAt.atZone(ZoneId.systemDefault()).toInstant()));
     }
 
     private void stopCamera() {
@@ -464,7 +465,7 @@ public class CamService extends Service {
             mediaRecorder.setVideoSize(previewSize.getWidth(), previewSize.getHeight());
             mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
             mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-            mediaRecorder.setMaxDuration(duration);    // 单位ms
+            mediaRecorder.setMaxDuration(duration); // 单位ms
             try {
                 mediaRecorder.prepare();
             } catch (IOException e) {
@@ -487,9 +488,11 @@ public class CamService extends Service {
         SimpleDateFormat timeFormatter = new SimpleDateFormat("HH_mm_ss");
         Date now = new Date(System.currentTimeMillis());
 
-
         String filename = timeFormatter.format(now) + ".mp4";
-        File dir = context != null ? new File(Environment.getExternalStorageDirectory(), "/YXD/" + dateFormatter.format(now)) : null;
+        File dir = context != null
+                ? new File(Environment.getExternalStorageDirectory(),
+                        (taskName != null ? "/" + taskName : "") + "/YXD/" + dateFormatter.format(now))
+                : null;
 
         if (!dir.exists()) {
             dir.mkdirs();

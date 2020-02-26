@@ -164,7 +164,8 @@ public class PendingRequests {
         public static final String RESULTS_KEY = "results";
         public static final String BPS_KEY = "bps";
         public static final String FPS_KEY = "fps";
-        public static final String APP_NAME_KEY = "app_name";
+        public static final String APP_NAME_KEY = "appName";
+        public static final String TASK_NAME_KEY = "taskName";
 
         // Unique int used to identify this request in any Android Permission or Activity callbacks
         public int requestCode;
@@ -185,6 +186,7 @@ public class PendingRequests {
         public int fps = 25;
 
         public String appName = "";
+        public String taskName = "";
 
         // The array of results to be returned to the javascript callback on success
         public JSONArray results = new JSONArray();
@@ -215,6 +217,7 @@ public class PendingRequests {
             this.bps = bundle.getInt(BPS_KEY);
             this.fps = bundle.getInt(FPS_KEY);
             this.appName = bundle.getString(APP_NAME_KEY);
+            this.taskName = bundle.getString(TASK_NAME_KEY);
 
             try {
                 this.results = new JSONArray(bundle.getString(RESULTS_KEY));
@@ -235,6 +238,7 @@ public class PendingRequests {
             bundle.putInt(BPS_KEY, this.bps);
             bundle.putInt(FPS_KEY, this.fps);
             bundle.putString(APP_NAME_KEY, this.appName);
+            bundle.putString(TASK_NAME_KEY, this.taskName);
 
             return bundle;
         }
