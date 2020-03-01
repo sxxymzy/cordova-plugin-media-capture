@@ -47,10 +47,11 @@ public class PendingRequests {
     /**
      * Creates a request and adds it to the array of pending requests. Each created request gets a
      * unique result code for use with startActivityForResult() and requestPermission()
-     * @param action            The action this request corresponds to (capture image, capture audio, etc.)
-     * @param options           The options for this request passed from the javascript
-     * @param callbackContext   The CallbackContext to return the result to
-     * @return                  The newly created Request object with a unique result code
+     *
+     * @param action          The action this request corresponds to (capture image, capture audio, etc.)
+     * @param options         The options for this request passed from the javascript
+     * @param callbackContext The CallbackContext to return the result to
+     * @return The newly created Request object with a unique result code
      * @throws JSONException
      */
     public synchronized Request createRequest(int action, JSONObject options, CallbackContext callbackContext) throws JSONException {
@@ -61,9 +62,10 @@ public class PendingRequests {
 
     /**
      * Gets the request corresponding to this request code
-     * @param requestCode   The request code for the desired request
-     * @return              The request corresponding to the given request code or null if such a
-     *                      request is not found
+     *
+     * @param requestCode The request code for the desired request
+     * @return The request corresponding to the given request code or null if such a
+     * request is not found
      */
     public synchronized Request get(int requestCode) {
         // Check to see if this request was saved
@@ -85,6 +87,7 @@ public class PendingRequests {
     /**
      * Removes the request from the array of pending requests and sends an error plugin result
      * to the CallbackContext that contains the given error object
+     *
      * @param req   The request to be resolved
      * @param error The error to be returned to the CallbackContext
      */
@@ -96,7 +99,8 @@ public class PendingRequests {
     /**
      * Removes the request from the array of pending requests and sends a successful plugin result
      * to the CallbackContext that contains the result of the request
-     * @param req   The request to be resolved
+     *
+     * @param req The request to be resolved
      */
     public synchronized void resolveWithSuccess(Request req) {
         req.callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, req.results));
@@ -107,18 +111,19 @@ public class PendingRequests {
     /**
      * Each request gets a unique ID that represents its request code when calls are made to
      * Activities and for permission requests
-     * @return  A unique request code
+     *
+     * @return A unique request code
      */
     private synchronized int incrementCurrentReqId() {
-        return currentReqId ++;
+        return currentReqId++;
     }
 
     /**
      * Restore state saved by calling toBundle along with a callbackContext to be used in
      * delivering the results of a pending callback
      *
-     * @param lastSavedState    The bundle received from toBundle()
-     * @param resumeContext     The callbackContext to return results to
+     * @param lastSavedState The bundle received from toBundle()
+     * @param resumeContext  The callbackContext to return results to
      */
     public synchronized void setLastSavedState(Bundle lastSavedState, CallbackContext resumeContext) {
         this.lastSavedState = lastSavedState;
@@ -129,7 +134,7 @@ public class PendingRequests {
     /**
      * Save the current pending requests to a bundle for saving when the Activity gets destroyed.
      *
-     * @return  A Bundle that can be used to restore state using setLastSavedState()
+     * @return A Bundle that can be used to restore state using setLastSavedState()
      */
     public synchronized Bundle toBundle() {
         Bundle bundle = new Bundle();
@@ -172,16 +177,12 @@ public class PendingRequests {
 
         // The action that this request is performing
         public int action;
-
         // The number of pics/vids/audio clips to take (CAPTURE_IMAGE, CAPTURE_VIDEO, CAPTURE_AUDIO)
         public long limit = 1;
-
         // Optional max duration of recording in seconds (CAPTURE_VIDEO only)
         public int duration = 0;
-
         // Quality level for video capture 0 low, 1 high (CAPTURE_VIDEO only)
         public int quality = 1;
-
         public int bps = 400000;
         public int fps = 25;
 
@@ -202,6 +203,10 @@ public class PendingRequests {
                 this.limit = options.optLong("limit", 1);
                 this.duration = options.optInt("duration", 0);
                 this.quality = options.optInt("quality", 1);
+                this.bps = options.optInt(BPS_KEY, 400000);
+                this.fps = options.optInt(FPS_KEY, 25);
+                this.appName = options.optString(APP_NAME_KEY, "");
+                this.taskName = options.optString(TASK_NAME_KEY, "");
             }
 
             this.requestCode = incrementCurrentReqId();
@@ -221,7 +226,7 @@ public class PendingRequests {
 
             try {
                 this.results = new JSONArray(bundle.getString(RESULTS_KEY));
-            } catch(JSONException e) {
+            } catch (JSONException e) {
                 // This should never be caught
                 LOG.e(LOG_TAG, "Error parsing results for request from saved bundle", e);
             }

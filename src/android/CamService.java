@@ -70,11 +70,11 @@ public class CamService extends Service {
     private final int TARGET_WIDTH = 720;
     private final CameraCaptureSession.CaptureCallback captureCallback = new CameraCaptureSession.CaptureCallback() {
         public void onCaptureProgressed(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request,
-                @NonNull CaptureResult partialResult) {
+                                        @NonNull CaptureResult partialResult) {
         }
 
         public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request,
-                @NonNull TotalCaptureResult result) {
+                                       @NonNull TotalCaptureResult result) {
         }
     };
     private WindowManager wm;
@@ -491,7 +491,7 @@ public class CamService extends Service {
         String filename = timeFormatter.format(now) + ".mp4";
         File dir = context != null
                 ? new File(Environment.getExternalStorageDirectory(),
-                        (taskName != null ? "/" + taskName : "") + "/YXD/" + dateFormatter.format(now))
+                "/YXD/" + (taskName != null ?  taskName + "/" : "") + dateFormatter.format(now))
                 : null;
 
         if (!dir.exists()) {
