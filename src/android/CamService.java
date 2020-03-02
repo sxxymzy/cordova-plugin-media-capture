@@ -465,7 +465,8 @@ public class CamService extends Service {
             mediaRecorder.setVideoSize(previewSize.getWidth(), previewSize.getHeight());
             mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
             mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-            mediaRecorder.setMaxDuration(duration); // 单位ms
+            int duration_fix = (int) (duration - System.currentTimeMillis() % (duration));
+            mediaRecorder.setMaxDuration(duration_fix); // 单位ms
             try {
                 mediaRecorder.prepare();
             } catch (IOException e) {
