@@ -456,7 +456,8 @@ public class CamService extends Service {
 
         if (mediaRecorder != null) {
             mediaRecorder.setOrientationHint(0);
-            mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+            // mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+            // mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
             mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
             mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
             mediaRecorder.setOutputFile(nextVideoAbsolutePath);
@@ -464,7 +465,6 @@ public class CamService extends Service {
             mediaRecorder.setVideoFrameRate(frameRate);
             mediaRecorder.setVideoSize(previewSize.getWidth(), previewSize.getHeight());
             mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
-            mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
             int duration_fix = (int) (duration - System.currentTimeMillis() % (duration));
             mediaRecorder.setMaxDuration(duration_fix); // 单位ms
             try {
