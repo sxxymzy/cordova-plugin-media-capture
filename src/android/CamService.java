@@ -62,6 +62,7 @@ public class CamService extends Service {
     public static final String ACTION_STOPPED = "com.example.camera2videoservice.action.STOPPED";
     public static final String ACTION_HIDE_PREVIEW = "com.example.camera2videoservice.action.ACTION_HIDE_PREVIEW";
     public static final String ACTION_SHOW_PREVIEW = "com.example.camera2videoservice.action.ACTION_SHOW_PREVIEW";
+    public static final String ACTION_SWITCH_CAMERA = "com.example.camera2videoservice.action.ACTION_SWITCH_CAMERA";
 
     public static final int ONGOING_NOTIFICATION_ID = 6660;
     public static final String CHANNEL_ID = "cam_service_channel_id";
@@ -70,11 +71,11 @@ public class CamService extends Service {
     private final int TARGET_WIDTH = 720;
     private final CameraCaptureSession.CaptureCallback captureCallback = new CameraCaptureSession.CaptureCallback() {
         public void onCaptureProgressed(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request,
-                                        @NonNull CaptureResult partialResult) {
+                @NonNull CaptureResult partialResult) {
         }
 
         public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request,
-                                       @NonNull TotalCaptureResult result) {
+                @NonNull TotalCaptureResult result) {
         }
     };
     private WindowManager wm;
@@ -94,6 +95,8 @@ public class CamService extends Service {
     private PendingIntent callerContentIntent;
     private String appName;
     private String taskName;
+    private int availableCamNum;
+    private int selectCamIndx = 0;
     private final StateCallback stateCallback = new StateCallback() {
         public void onOpened(@NonNull CameraDevice currentCameraDevice) {
             cameraDevice = currentCameraDevice;
@@ -167,8 +170,9 @@ public class CamService extends Service {
             hideTexture();
         } else if (Objects.equals(intent.getAction(), ACTION_SHOW_PREVIEW)) {
             showTexture();
+        } else if (Objects.equals(intent.getAction(), ACTION_SWITCH_CAMERA)) {
+            switchCamera();
         }
-
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -186,6 +190,18 @@ public class CamService extends Service {
         }
 
         this.sendBroadcast(new Intent(ACTION_STOPPED));
+    }
+
+    private void switchCamera() {
+        if (this.availableCamNum > 1) {
+            this.selectCamIndx = (this.selectCamIndx + 1) % this.availableCamNum;
+            stopCamera();
+            if (this.shouldShowPreview) {
+                this.startWithPreview();
+            } else {
+                this.start();
+            }
+        }
     }
 
     private void start() {
@@ -293,12 +309,13 @@ public class CamService extends Service {
     private void initCam(int width, int height) {
         try {
             cameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
-            String camId = Objects.requireNonNull(cameraManager).getCameraIdList()[0];
-            previewSize = chooseSupportedSize(camId, width, height);
-
+            String[] availableCamList = Objects.requireNonNull(cameraManager).getCameraIdList();
+            this.availableCamNum = availableCamList.length;
+            String selectCamId = availableCamList[selectCamIndx];
+            previewSize = chooseSupportedSize(selectCamId, width, height);
             mediaRecorder = new MediaRecorder();
+            cameraManager.openCamera(selectCamId, stateCallback, null);
 
-            cameraManager.openCamera(camId, stateCallback, null);
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
@@ -492,7 +509,7 @@ public class CamService extends Service {
         String filename = timeFormatter.format(now) + ".mp4";
         File dir = context != null
                 ? new File(Environment.getExternalStorageDirectory(),
-                "/YXD/" + (taskName != null ?  taskName + "/" : "") + dateFormatter.format(now))
+                        "/YXD/" + (taskName != null ? taskName + "/" : "") + dateFormatter.format(now))
                 : null;
 
         if (!dir.exists()) {

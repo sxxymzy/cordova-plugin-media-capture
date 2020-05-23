@@ -77,6 +77,7 @@ public class Capture extends CordovaPlugin {
     private static final int STOP_RECORDING = 4;
     private static final int SHOW_PREVIEW = 5;
     private static final int HIDE_PREVIEW = 6;
+    private static final int SWITCH_CAMERA = 8;
     private static final int REQUEST_OVERLAY_CODE = 7;
     private static final String LOG_TAG = "Capture";
 
@@ -153,6 +154,8 @@ public class Capture extends CordovaPlugin {
             this.showPreview(pendingRequests.createRequest(SHOW_PREVIEW, options, callbackContext));
         } else if (action.equals("hidePreview")) {
             this.hidePreview(pendingRequests.createRequest(HIDE_PREVIEW, options, callbackContext));
+        } else if (action.equals("switchCamera")) {
+            this.switchCamera(pendingRequests.createRequest(SWITCH_CAMERA, options, callbackContext));
         } else {
             return false;
         }
@@ -386,6 +389,10 @@ public class Capture extends CordovaPlugin {
 
     private void hidePreview(Request req) {
         notifyService(CamService.ACTION_HIDE_PREVIEW);
+    }
+
+    private void switchCamera(Request req) {
+        notifyService(CamService.ACTION_SWITCH_CAMERA);
     }
 
     /**
