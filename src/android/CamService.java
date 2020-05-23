@@ -196,6 +196,9 @@ public class CamService extends Service {
         if (this.availableCamNum > 1) {
             this.selectCamIndx = (this.selectCamIndx + 1) % this.availableCamNum;
             stopCamera();
+            if (textureView != null) {
+                wm.removeView(textureView);
+            }
             if (this.shouldShowPreview) {
                 this.startWithPreview();
             } else {
