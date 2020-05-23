@@ -95,5 +95,8 @@ Capture.prototype.hidePreview = function (successCallback, errorCallback, option
     exec(successCallback, errorCallback, 'Capture', "hidePreview", [options]);
 };
 
+Capture.prototype.switchCamera = function (successCallback, errorCallback, options) {
+    exec(successCallback, errorCallback, 'Capture', "switchCamera", [options]);
+};
 
 module.exports = new Capture();
