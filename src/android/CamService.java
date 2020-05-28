@@ -45,7 +45,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Timer;
@@ -327,25 +330,26 @@ public class CamService extends Service {
     }
 
     private Size chooseSupportedSize(String camId) throws CameraAccessException {
-        CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(camId);
-        StreamConfigurationMap map =
-                characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+        class CompareSizesByArea implements Comparator<Size> {
 
-        if (map != null) {
-            Size largest = Collections.max( Arrays.asList(supportedSizes), new CompareSizesByArea());
-            return largest;
-        } else {
-            return new Size(TARGET_HEIGHT, TARGET_WIDTH);
-        }
-        static class CompareSizesByArea implements Comparator<Size> {
-        
             @Override
             public int compare(Size lhs, Size rhs) {
                 // We cast here to ensure the multiplications won't overflow
                 return Long.signum((long) lhs.getWidth() * lhs.getHeight() -
                         (long) rhs.getWidth() * rhs.getHeight());
             }
-        
+
+        }
+        CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(camId);
+        StreamConfigurationMap map =
+                characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+
+        if (map != null) {
+            Size[] supportedSizes = map.getOutputSizes(SurfaceTexture.class);
+            Size largest = Collections.max( Arrays.asList(supportedSizes), new CompareSizesByArea());
+            return largest;
+        } else {
+            return new Size(TARGET_HEIGHT, TARGET_WIDTH);
         }
     }
 
