@@ -13,12 +13,14 @@ import android.graphics.PixelFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
+import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraDevice.StateCallback;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
+import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Bundle;
@@ -71,11 +73,11 @@ public class CamService extends Service {
     private final int TARGET_WIDTH = 720;
     private final CameraCaptureSession.CaptureCallback captureCallback = new CameraCaptureSession.CaptureCallback() {
         public void onCaptureProgressed(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request,
-                @NonNull CaptureResult partialResult) {
+                                        @NonNull CaptureResult partialResult) {
         }
 
         public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request,
-                @NonNull TotalCaptureResult result) {
+                                       @NonNull TotalCaptureResult result) {
         }
     };
     private WindowManager wm;
@@ -118,7 +120,7 @@ public class CamService extends Service {
 
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
-            initCam(TARGET_HEIGHT, TARGET_WIDTH);
+            initCam();
         }
 
         @Override
@@ -209,7 +211,7 @@ public class CamService extends Service {
 
     private void start() {
         shouldShowPreview = false;
-        initCam(TARGET_HEIGHT, TARGET_WIDTH);
+        initCam();
     }
 
     private void startWithPreview() {
@@ -217,7 +219,7 @@ public class CamService extends Service {
         initOverlay();
 
         if (textureView.isAvailable()) {
-            initCam(TARGET_HEIGHT, TARGET_WIDTH);
+            initCam();
         } else {
             textureView.setSurfaceTextureListener(surfaceTextureListener);
         }
@@ -309,13 +311,13 @@ public class CamService extends Service {
     }
 
     @SuppressLint("MissingPermission")
-    private void initCam(int width, int height) {
+    private void initCam() {
         try {
             cameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
             String[] availableCamList = Objects.requireNonNull(cameraManager).getCameraIdList();
             this.availableCamNum = availableCamList.length;
             String selectCamId = availableCamList[selectCamIndx];
-            previewSize = chooseSupportedSize(selectCamId, width, height);
+            previewSize = chooseSupportedSize(selectCamId);
             mediaRecorder = new MediaRecorder();
             cameraManager.openCamera(selectCamId, stateCallback, null);
 
@@ -324,19 +326,16 @@ public class CamService extends Service {
         }
     }
 
-    private Size chooseSupportedSize(String camId, int textureViewWidth, int textureViewHeight) {
-        // CameraCharacteristics characteristics =
-        // cameraManager.getCameraCharacteristics(camId);
-        // StreamConfigurationMap map =
-        // characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-        // Size[] supportedSizes = map != null ?
-        // map.getOutputSizes(SurfaceTexture.class) : null;
-        //
-        // final int texViewArea = textureViewWidth * textureViewHeight;
-        // final float texViewAspect = (float)textureViewWidth /
-        // (float)textureViewHeight;
-
-        return new Size(TARGET_HEIGHT, TARGET_WIDTH);
+    private Size chooseSupportedSize(String camId) throws CameraAccessException {
+        CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(camId);
+        StreamConfigurationMap map =
+                characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+        if (map != null) {
+            Size[] supportedSizes = map.getOutputSizes(SurfaceTexture.class);
+            return supportedSizes[0];
+        } else {
+            return new Size(TARGET_HEIGHT, TARGET_WIDTH);
+        }
     }
 
     private void startForeground() {
@@ -512,7 +511,7 @@ public class CamService extends Service {
         String filename = timeFormatter.format(now) + ".mp4";
         File dir = context != null
                 ? new File(Environment.getExternalStorageDirectory(),
-                        "/YXD/" + (taskName != null ? taskName + "/" : "") + dateFormatter.format(now))
+                "/YXD/" + (taskName != null ? taskName + "/" : "") + dateFormatter.format(now))
                 : null;
 
         if (!dir.exists()) {
