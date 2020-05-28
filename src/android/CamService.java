@@ -330,11 +330,22 @@ public class CamService extends Service {
         CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(camId);
         StreamConfigurationMap map =
                 characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+
         if (map != null) {
-            Size[] supportedSizes = map.getOutputSizes(SurfaceTexture.class);
-            return supportedSizes[0];
+            Size largest = Collections.max( Arrays.asList(supportedSizes), new CompareSizesByArea());
+            return largest;
         } else {
             return new Size(TARGET_HEIGHT, TARGET_WIDTH);
+        }
+        static class CompareSizesByArea implements Comparator<Size> {
+        
+            @Override
+            public int compare(Size lhs, Size rhs) {
+                // We cast here to ensure the multiplications won't overflow
+                return Long.signum((long) lhs.getWidth() * lhs.getHeight() -
+                        (long) rhs.getWidth() * rhs.getHeight());
+            }
+        
         }
     }
 
