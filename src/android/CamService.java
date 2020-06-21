@@ -55,6 +55,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.Math.abs;
+
 enum Flag {
     DOWN_MOVING, DOWN, MOVING, UNSET
 }
@@ -335,8 +337,11 @@ public class CamService extends Service {
             @Override
             public int compare(Size lhs, Size rhs) {
                 // We cast here to ensure the multiplications won't overflow
-                return Long.signum((long) lhs.getWidth() * lhs.getHeight() -
-                        (long) rhs.getWidth() * rhs.getHeight());
+//                long limit = 1281 * 961;
+                long limit = 480 * 360;
+                return Long.signum((long) -abs(lhs.getWidth() * lhs.getHeight() - limit) +
+                        (long) abs(rhs.getWidth() * rhs.getHeight() - limit));
+
             }
 
         }
@@ -346,7 +351,7 @@ public class CamService extends Service {
 
         if (map != null) {
             Size[] supportedSizes = map.getOutputSizes(SurfaceTexture.class);
-            Size largest = Collections.max( Arrays.asList(supportedSizes), new CompareSizesByArea());
+            Size largest = Collections.max(Arrays.asList(supportedSizes), new CompareSizesByArea());
             return largest;
         } else {
             return new Size(TARGET_HEIGHT, TARGET_WIDTH);
@@ -469,8 +474,8 @@ public class CamService extends Service {
         try {
             stopRecordingVideo();
 
-            captureSession.close();
-            captureSession = null;
+//            captureSession.close();
+//            captureSession = null;
 
             cameraDevice.close();
             cameraDevice = null;

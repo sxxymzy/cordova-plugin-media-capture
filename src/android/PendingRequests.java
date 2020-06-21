@@ -183,8 +183,8 @@ public class PendingRequests {
         public int duration = 0;
         // Quality level for video capture 0 low, 1 high (CAPTURE_VIDEO only)
         public int quality = 1;
-        public int bps = 400000;
-        public int fps = 25;
+        public int bps = 256000;
+        public int fps = 20;
 
         public String appName = "";
         public String taskName = "";
@@ -203,8 +203,8 @@ public class PendingRequests {
                 this.limit = options.optLong("limit", 1);
                 this.duration = options.optInt("duration", 0);
                 this.quality = options.optInt("quality", 1);
-                this.bps = options.optInt(BPS_KEY, 400000);
-                this.fps = options.optInt(FPS_KEY, 25);
+                this.bps = options.optInt(BPS_KEY, 256000);
+                this.fps = options.optInt(FPS_KEY, 20);
                 this.appName = options.optString(APP_NAME_KEY, "");
                 this.taskName = options.optString(TASK_NAME_KEY, "");
             }
